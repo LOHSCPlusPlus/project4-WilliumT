@@ -10,12 +10,13 @@ Create the DB and load the default .txt file using the private readFile function
 */
 CropDB::CropDB(){
     numCrops = 0;
-  crops = new CropInfo[MAX_CROPS];
+  crops = nullptr;
     readFile("cropTiny.txt");
 }
 CropDB::~CropDB(){
   delete []crops;
 }
+
 
 /**
 Ask the user to specify a db name, and then load the data using the private function
@@ -26,6 +27,29 @@ void CropDB::reload(){
     cin >> filename;
     readFile(filename);
 }
+
+void CropDB::expand() {
+   CropInfo *temp = new CropInfo[numCrops + 1];
+   for (int i = 0; i < numCrops; i++) {
+      temp[i] = crops[i];
+   }
+   delete [] crops;
+   crops = temp;
+  }
+
+void CropDB::shrink() {
+  CropInfo *temp = nullptr;
+  if (numCrops > 1) {
+    temp = new CropInfo[numCrops - 1];
+    for (int i = 0; i < numCrops - 1; i++) {
+      temp[i] = crops[i];
+    }
+  }
+  delete [] crops;
+  crops = temp;
+}
+
+
 
 /**
 Get the name of the file and then write the data out to file.
@@ -45,17 +69,13 @@ Insert a new entry at an index specified by the user.
 The values will be read from the console.
 */
 void CropDB::insert(){
-    if (numCrops < MAX_CROPS) {
+  expand();
         int insertIndex = getValidIndex();
         for (int index = numCrops; index > insertIndex; index--) {
             crops[index] = crops[index - 1];
         }
         crops[insertIndex].readFromUser();
         numCrops++;
-    }
-    else {
-        cout << "Database is full" << endl;
-    }
     
 }
 
@@ -64,13 +84,12 @@ Add a new entry at the end of the current array.
 The values will be read from the console.
 */
 void CropDB::add(){
-    if (numCrops < MAX_CROPS) {
+  expand();
+    
         crops[numCrops].readFromUser();
         numCrops++;
-    }
-    else {
-        cout << "Database is full" << endl;
-    }
+  
+  
 }
 
 /**
@@ -83,6 +102,7 @@ void CropDB::remove(){
         for (int index = delIndex; index < numCrops - 1; index++) {
             crops[index] = crops[index + 1];
         }
+      shrink();
         numCrops--;
     }
     else {
@@ -215,7 +235,8 @@ Used in the constructor and reload functions.
 void CropDB::readFile(const char fileName[]) {
     ifstream file(fileName);
     numCrops = 0;
-    while(file.peek() != EOF && numCrops < MAX_CROPS) {
+    while(file.peek() != EOF) {
+      expand();
         crops[numCrops].readFromFile(file);
         numCrops++;
     }
