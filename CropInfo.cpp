@@ -8,7 +8,7 @@ Clear all the values to zero.
 */
 CropInfo::CropInfo(){
     cropCode = 0;
-  name = new char [MAX_NAME_LEN];
+  name = nullptr;
   yieldsByYear = new double [NUM_YEARS]; 
     for (int index = 0; index < MAX_NAME_LEN; index++) {
         name[index] = '\0';
@@ -25,17 +25,19 @@ CropInfo::~CropInfo(){
 
 void CropInfo::operator= (const CropInfo &other){
   cropCode = other.cropCode;
-  strcpy(name, other.name);
+  delete [] name;
+  name = createCharPtr(other.name);
   for(int index = 0; index < NUM_YEARS; index++ ){
     yieldsByYear[index] = other.yieldsByYear[index];
     }
     }
 
 CropInfo::CropInfo(const CropInfo &other) {
-name = new char [MAX_NAME_LEN];
+name = nullptr;
   yieldsByYear = new double [NUM_YEARS]; 
 cropCode = other.cropCode;
-  strcpy(name, other.name);
+  delete [] name;
+  name = createCharPtr(other.name);
   for(int index = 0; index < NUM_YEARS; index++ ){
     yieldsByYear[index] = other.yieldsByYear[index];
     }
